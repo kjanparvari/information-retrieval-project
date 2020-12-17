@@ -25,8 +25,8 @@ class Tokenizer:
 
     @staticmethod
     def tokenizeDoc(doc: str) -> list:
-        result: list = [str]
-        lst: list = doc.split()
+        result: [Token] = []
+        lst: list = doc.strip().split()
         # lst[:] = [word.strip().replace(".", "").replace("،", "") for word in lst]
         word: str
         for word in lst:

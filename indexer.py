@@ -1,6 +1,7 @@
 import errno
 import os
 import pickle
+import shutil
 import typing
 import json
 from tokenizer import Tokenizer, Token
@@ -88,13 +89,15 @@ class PostingList:
 class Dictionary:
     _dict: {str, int}
 
-    def __init__(self):
+    def __init__(self, load=False):
         self._dict = {}
+        if load:
+            self._load()
 
     def addToken(self, token: Token, doc_id: int):
         term = token.getWord()
         pl: PostingList
-        x = self._getPostingList(term)
+        x = self.getPostingList(term)
         if x is None:
             pl_id: int = len(self._dict)
             self._dict[term] = pl_id
@@ -105,8 +108,8 @@ class Dictionary:
             pl = x
         pl.addToken(token, doc_id)
 
-    def _getPostingList(self, term: str) -> typing.Union[PostingList, None]:
-        pl_id: int = self._getPostingListId(term)
+    def getPostingList(self, term: str) -> typing.Union[PostingList, None]:
+        pl_id: int = self.getPostingListId(term)
         pl: PostingList
         pl_addr: str = POSTING_DIST + str(pl_id) + ".pl"
         if os.path.exists(pl_addr):
@@ -117,7 +120,7 @@ class Dictionary:
         else:
             return None
 
-    def _getPostingListId(self, term: str) -> int:
+    def getPostingListId(self, term: str) -> int:
         return self._dict.get(term) if self._dict.__contains__(term) else -1
 
     def _load(self):
@@ -151,31 +154,34 @@ class Dictionary:
     def __str__(self):
         return str(self._dict)
 
-    def test(self):
-        self._load()
-        # print(self)
-        a = self._getPostingList("را")
-        print(a)
-
 
 class Indexer:
     def __init__(self, docs_dir, docs_size):
         self.docLoader = DocLoader(docs_dir, docs_size)
         self.tokenizer = Tokenizer()
         self.stemmer = Stemmer()
-        self.dictionary = Dictionary()
+        self.dictionary = Dictionary(load=False)
+        self._clean()
+        self._setup(docs_size)
 
-        self.dictionary.test()
+    def _setup(self, docs_size):
+        for doc_id in range(1, docs_size + 1):
+            doc = self.docLoader.getDoc(doc_id)
+            tokens = self.tokenizer.tokenizeDoc(doc)
+            print("tokens: ")
+            for token in tokens:
+                print(token)
+            normalized_words = self.stemmer.normalize_list(tokens)
+            print("normalized_words: ")
+            for token in normalized_words:
+                print(token)
+            for token in normalized_words:
+                self.dictionary.addToken(token, doc_id)
 
-        # for i in range(1, docs_size + 1):
-        #     doc = self.docLoader.getDoc(i)
-        #     tokens = self.tokenizer.tokenizeDoc(doc)
-        #     # print("tokens: ")
-        #     # for token in tokens:
-        #     #     print(token)
-        #     normalized_words = self.stemmer.normalize_list(tokens)
-        #     # print("normalized_words: ")
-        #     # for token in normalized_words:
-        #     #     print(token)
-        #     for i in range(1, len(tokens)):
-        #         self.dictionary.addToken(tokens[i], i)
+    @staticmethod
+    def _clean():
+        if os.path.exists(os.path.dirname("./dist")):
+            try:
+                shutil.rmtree("./dist")
+            except (FileNotFoundError, FileExistsError) as e:
+                print("error")
