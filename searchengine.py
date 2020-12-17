@@ -121,9 +121,10 @@ class SearchEngine:
 
     def listen(self):
         # inp = input("Enter Your Query: ")
-        inp = "سرمربی تراکتور برکنار شد."
-        for p in self._tokenizer.tokenizeDoc(inp):
-            print(p)
+        inp = "هفته"
+        query_tokens = self._tokenizer.tokenizeDoc(inp)
+        normalized_query_tokens = self._stemmer.normalize_list(query_tokens)
+        for p in normalized_query_tokens:
             self._search_for_token(p)
         self._query_result.buildCandidates()
         self._query_result.printKBestCandidates()

@@ -1,10 +1,11 @@
 import traceback
 import typing
+import re
 
 from indexer import Indexer
 
 DOCS_DIR: str = "./docs/"
-DOC_SIZE: int = 1
+DOC_SIZE: int = 10
 
 
 def main() -> None:
