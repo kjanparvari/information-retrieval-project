@@ -27,6 +27,9 @@ class Posting:
     def getDocId(self):
         return self._docId
 
+    def getPositions(self):
+        return self._positions.copy()
+
     def __str__(self):
         s: str = ""
         s += "doc: " + str(self._docId) + " | "
@@ -62,6 +65,9 @@ class PostingList:
 
     def getTerm(self):
         return self._term
+
+    def getPostings(self):
+        return self._list
 
     def __str__(self):
         s: str = ""
