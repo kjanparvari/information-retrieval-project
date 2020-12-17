@@ -4,6 +4,7 @@ import pickle
 import shutil
 import typing
 import json
+
 from tokenizer import Tokenizer, Token
 from stemmer import Stemmer
 from docloader import DocLoader
@@ -35,6 +36,7 @@ class Posting:
         s += "doc: " + str(self._docId) + " | "
         for p in self._positions:
             s += str(p) + " "
+        s += " *** "
         return s
 
 

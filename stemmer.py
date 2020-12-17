@@ -9,16 +9,15 @@ class Stemmer:
     def __init__(self):
         with open("./stopwords/stopwords.txt", encoding="utf-8") as file:
             self._stop_words = file.read().strip().split()
-            for i in range(0, len(self._stop_words)):
-                self._stop_words[i] = self._stop_words[i].strip()
 
     def normalize_list(self, tokens_list: [Token]) -> list:
         result: list = []
         token: Token
-        for i in range(0, len(tokens_list)):
-            token = tokens_list[i]
+        for token in tokens_list:
             nw = self._normalize_word(token.getWord())
             if nw != "":
+                if nw == "است":
+                    print("shit")
                 result.append(Token(nw, token.getPosition()))
                 del token
         del tokens_list
@@ -26,20 +25,23 @@ class Stemmer:
 
     def _normalize_word(self, word: str) -> str:
         result: str = word.strip()
-        if self._stop_words.__contains__(word):  # checking stop words
-            if word == "شد":
-                print("here1")
-            return ""
+
         result = self.correct_invalid_chars(result)
         if result == "":
             return ""
         result = self.remove_redundant_notations(result)
         if result == "":
             return ""
-        result = self.removeZamir(result)
+        if self._stop_words.__contains__(result):  # checking stop words
+            return ""
+        result = self.removeZamir(result, False)
         if result == "":
             return ""
-
+        result = self.removeHa(result)
+        if result == "":
+            return ""
+        if self._stop_words.__contains__(result):  # checking stop words
+            return ""
         return result
 
     @staticmethod
@@ -48,25 +50,35 @@ class Stemmer:
 
     @staticmethod
     def removeHa(word: str):
-        pass
+        ends = ['یی', ' ی', 'ها', 'ات']
+        for end in ends:
+            if word.endswith(end):
+                word = word[:-len(end)]
+        return word
 
     def remove_redundant_notations(self, word: str) -> str:
-        word = word.replace("،", "").replace("؟", "")
+        word = word.replace("،", "").replace("؟", "").replace(":", "").replace("/", "").replace("\\", "")
+
         if self.hasNumbers(word):
             return word
         else:
             return word.replace(".", "")
 
     def removeZamir(self, sInput, bState):
+        ln = 0
         s_rule = "^(?P<stem>.+?)((?<=(ا|و))ی)?(ها)?(ی)?((ات)?( تان|تان| مان|مان| شان|شان)|ی|م|ت|ش|ء)$"
+        ln += 1
         if bState:
+            ln += 2
             s_rule = "^(?P<stem>.+?)((?<=(ا|و))ی)?(ها)?(ی)?(ات|ی|م|ت|ش| تان|تان| مان|مان| شان|شان|ء)$"
-
+        ln += 1
         return self.extractStem(sInput, s_rule)
 
     @staticmethod
     def extractStem(s_input, s_rule, s_replacement="\g<stem>"):
+        r = 0
         return re.sub(s_rule, s_replacement, s_input).strip()
+        r += 1
 
     @staticmethod
     def correct_invalid_chars(word: str) -> str:

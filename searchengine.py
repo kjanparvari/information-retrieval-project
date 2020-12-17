@@ -120,8 +120,8 @@ class SearchEngine:
             self._query_result.addToResults(token, pl)
 
     def listen(self):
-        # inp = input("Enter Your Query: ")
-        inp = "هفته"
+        inp = input("Enter Your Query: ")
+        # inp = "هفته"
         query_tokens = self._tokenizer.tokenizeDoc(inp)
         normalized_query_tokens = self._stemmer.normalize_list(query_tokens)
         for p in normalized_query_tokens:
