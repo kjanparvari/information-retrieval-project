@@ -11,9 +11,9 @@ class Candidate:
     _score: int
     _covered_tokens: [(Token, [int])]  # token, positions
 
-    def __init__(self, doc_id: int):
+    def __init__(self, doc_id: int, score: int = 0):
         self._covered_tokens = []
-        self._score = 0
+        self._score = score
         self._doc_id = doc_id
 
     def getDocId(self):
@@ -85,10 +85,19 @@ class QueryResult:
                 return c
         return None
 
-    def printCandidates(self):
+    def printKBestCandidates(self, k=None):
+        if k is None:
+            k = len(self._candidates)
+        from heap import MaxHeap
         c: Candidate
+        # for c in self._candidates:
+        #     print(c)
+        h = MaxHeap(len(self._candidates))
         for c in self._candidates:
-            print(c)
+            h.insert(c)
+        result_number = len(self._candidates) if len(self._candidates) < k else k
+        for i in range(result_number):
+            print(h.extractMax())
 
 
 class SearchEngine:
@@ -117,7 +126,7 @@ class SearchEngine:
             print(p)
             self._search_for_token(p)
         self._query_result.buildCandidates()
-        self._query_result.printCandidates()
+        self._query_result.printKBestCandidates()
 
 
 def main():
