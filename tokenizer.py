@@ -1,11 +1,39 @@
+import typing
+
+
+class Token:
+    _word: str
+    _position: int
+
+    def __init__(self, word: str, position: int):
+        self._word = word
+        self._position = position
+
+    def getWord(self):
+        return self._word
+
+    def getPosition(self):
+        return self._position
+
+    def __str__(self):
+        return self._word + " - " + str(self._position)
+
+
 class Tokenizer:
     def __init__(self):
         pass
 
-    def tokenizeDoc(self, file: typing.TextIO) -> None:
-        # reading each line
-        for line in file:
-            # reading each word
-            for word in line.split():
-                # displaying the words
-                print(normalize(word))
+    @staticmethod
+    def tokenizeDoc(doc: str) -> list:
+        result: list = [str]
+        lst: list = doc.split()
+        # lst[:] = [word.strip().replace(".", "").replace("،", "") for word in lst]
+        word: str
+        for word in lst:
+            pass
+        position: int = 1
+        for word in lst:
+            if word != "":
+                result.append(Token(word, position))
+                position += 1
+        return result
